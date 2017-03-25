@@ -30,6 +30,12 @@ def get_autocomplete_url(keyword):
     return AUTOCOMPLETE_URL.format( keyword)
 
 
+def parse_category_response(categories):
+    if 'nodes' not in categories:
+        return []
+
+    return list(map(lambda x: x['name'].lower(), categories['nodes']))
+
 def parse_response(response):
     if response.status_code != 200:
         print("Warning: got status code {}").format(response.status_code)
@@ -47,7 +53,10 @@ def parse_response(response):
     assert(len(suggestions) == len(category_data))
 
     for i, suggestion in enumerate(suggestions):
-        suggestions_with_categories[suggestion.lower()] = category_data[i]
+        categories = parse_category_response(category_data[i])
+
+
+        suggestions_with_categories[suggestion.lower()] = categories
 
     return suggestions_with_categories
 
@@ -120,6 +129,13 @@ def crawl_amazon(limit):
                 keyword_queue.append(suggestion)
                 # print("Enqueued '{}'".format(suggestion))
 
+            categories = suggestions_and_categories[suggestion]
+            for category in categories:
+                if category not in tagged_categories:
+                    tagged_categories[category] = []
+
+                tagged_categories[category].append(suggestion)
+
         print("Queue size: {}\t\t{}:\t{} suggestions".format(len(keyword_queue), keyword, len(suggestion_list)))
 
     save_crawl_data(keyword_suggestions, tagged_categories)
@@ -136,6 +152,10 @@ def query_data():
     print("exit\t\t\t:  quit - can also use control+c")
     print()
 
+    # For prettifying output
+    def stringify(string_list):
+        return ', '.join(map(lambda x: "'{}'".format(x), string_list))
+
     while 1:
         user_input = input().strip().lower().split()
 
@@ -145,18 +165,19 @@ def query_data():
         if user_input[0] == 'exit':
             exit(0)
         elif user_input[0] == 'list' and user_input[1] == 'keywords':
-            output = ', '.join(keyword_sugggestions.keys())
+            output = stringify(keyword_sugggestions.keys())
             print("Keywords: {}".format(output))
         elif user_input[0] == 'list' and user_input[1] == 'categories':
-            pass
-            #TODO
+            output = stringify(tagged_categories.keys())
+            print("Keywords: {}".format(output))
         elif user_input[0] == 'keyword' and len(user_input) > 1:
             keyword = user_input[1]
-            output = ', '.join(keyword_sugggestions[keyword])
+            output = stringify(keyword_sugggestions[keyword])
             print("Suggestions: {}".format(output))
-        elif user_input[0] == 'keyword' and len(user_input) > 1:
-            pass
-            #TODO
+        elif user_input[0] == 'category' and len(user_input) > 1:
+            category = user_input[1]
+            output = stringify(tagged_categories[category])
+            print("Suggestions: {}".format(output))
         else:
             print("invalid command")
 
