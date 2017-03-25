@@ -33,17 +33,17 @@ def parse_response(response):
 
     json = response.json()
 
-    query, suggestions, catgory_data = json[QUERY_STRING_INDEX : CATEGORIES_INDEX + 1]
+    query, suggestions, category_data = json[QUERY_STRING_INDEX : CATEGORIES_INDEX + 1]
 
     suggestions_with_categories = {}
 
     # pdb.set_trace()
 
     # Temporary assert to validate my assumptions
-    assert(len(json[SUGGESTIONS_INDEX]) == len(json[CATEGORIES_INDEX]))
+    assert(len(suggestions) == len(category_data))
 
-    for i, suggestion in enumerate(json[SUGGESTIONS_INDEX]):
-        suggestions_with_categories[suggestion] = json[CATEGORIES_INDEX][i]
+    for i, suggestion in enumerate(suggestions):
+        suggestions_with_categories[suggestion] = category_data[i]
 
     return suggestions_with_categories
 
