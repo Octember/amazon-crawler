@@ -11,7 +11,6 @@
 pip install requests
 
 python crawler.py
-
 ```
 
 ### Generating list of keywords to search on

@@ -1,8 +1,9 @@
-# from html.parser import HTMLParser
 import requests
 from collections import deque
-import pdb
-import pickle
+import pdb    # debugger
+import pickle # For saving / dumping data
+import signal # For catching control+c
+import sys
 
 # This URL will surely not work forever, but at the time of writing it works
 AUTOCOMPLETE_URL = "https://completion.amazon.com/search/complete?method=completion&mkt=1&r=QHW0T16FVMD8GWM2WWM4&s=161-1591289-5903765&c=AWJECJG5N87M8&p=Detail&l=en_US&sv=desktop&client=amazon-search-ui&search-alias=aps&qs=&cf=1&fb=1&sc=1&q={}"
@@ -56,11 +57,30 @@ def get_suggestions(keyword):
     return parse_response(response)
 
 
+def save_crawl_data(keyword_suggestions, tagged_categories):
+    saved_data = {
+        'keyword_sugggestions': keyword_suggestions,
+        'tagged_categories': tagged_categories
+    }
+
+    print("Saving {} suggestions".format(len(keyword_suggestions)))
+    pickle.dump( saved_data, open( "suggestion_data.p", "wb" ) )
 
 
-if __name__ == "__main__":
+def crawl_amazon():
+
     keyword_suggestions = {}
     tagged_categories   = {}
+
+    # Handler to catch control+C and save our progress anyway
+    def signal_handler(signal, frame):
+        print('You pressed Ctrl+C!')
+        save_crawl_data(keyword_suggestions, tagged_categories)
+        sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+    print('Welcome -- Press Ctrl+C whenever')
 
     words_to_use = set()
     for line in open('./simple_words_smaller.txt', 'r'):
@@ -87,12 +107,7 @@ if __name__ == "__main__":
 
         print("{} left\t\t{}:\t{} suggestions".format(len(keyword_queue), keyword, len(suggestion_list)))
 
-        # pdb.set_trace()
+    save_crawl_data(keyword_suggestions, tagged_categories)
 
-    saved_data = {
-        'keyword_sugggestions': keyword_suggestions,
-        'tagged_categories': tagged_categories
-    }
-
-    pickle.dump( saved_data, open( "suggestion_data.p", "wb" ) )
-
+if __name__ == "__main__":
+    crawl_amazon()
