@@ -28,11 +28,19 @@ def get_autocomplete_url(keyword):
 
 def parse_response(response):
     if response.status_code != 200:
-        return ''
+        print("Warning: got status code {}").format(response.status_code)
+        return []
 
     json = response.json()
 
+    query, suggestions, catgory_data = json[QUERY_STRING_INDEX : CATEGORIES_INDEX + 1]
+
     suggestions_with_categories = {}
+
+    # pdb.set_trace()
+
+    # Temporary assert to validate my assumptions
+    assert(len(json[SUGGESTIONS_INDEX]) == len(json[CATEGORIES_INDEX]))
 
     for i, suggestion in enumerate(json[SUGGESTIONS_INDEX]):
         suggestions_with_categories[suggestion] = json[CATEGORIES_INDEX][i]
