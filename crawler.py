@@ -64,7 +64,7 @@ def save_crawl_data(keyword_suggestions, tagged_categories):
     }
 
     print("Saving {} suggestions".format(len(keyword_suggestions)))
-    pickle.dump( saved_data, open( "suggestion_data.p", "wb" ) )
+    pickle.dump( saved_data, open( "./suggestion_data.p", "wb" ) )
 
 
 def crawl_amazon():
@@ -83,7 +83,7 @@ def crawl_amazon():
     print('Welcome -- Press Ctrl+C whenever')
 
     words_to_use = set()
-    for line in open('./simple_words_smaller.txt', 'r'):
+    for line in open('./simple_words.txt', 'r'):
         words_to_use.add(line.strip())
 
     keyword_queue = deque(words_to_use)
@@ -103,9 +103,9 @@ def crawl_amazon():
             if suggestion not in words_to_use:
                 words_to_use.add(suggestion)
                 keyword_queue.append(suggestion)
-                print("Enqueued '{}'".format(suggestion))
+                # print("Enqueued '{}'".format(suggestion))
 
-        print("{} left\t\t{}:\t{} suggestions".format(len(keyword_queue), keyword, len(suggestion_list)))
+        print("Queue size: {}\t\t{}:\t{} suggestions".format(len(keyword_queue), keyword, len(suggestion_list)))
 
     save_crawl_data(keyword_suggestions, tagged_categories)
 
