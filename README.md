@@ -8,7 +8,7 @@ Write a simple web crawler that grabs search suggestion data from the amazon.com
 ```
 # Install python v > 3.0 https://www.python.org/downloads/release/python-361/
 
-pip install requests
+python3 -m pip install requests
 ```
 
 ## Usage
@@ -20,6 +20,8 @@ There are two steps to using the crawler:
 ```
 python crawler.py crawl
 ```
+
+Make sure python has write permissions in the directory. If not, you will need to run it as `sudo`
 
 The script will continue to run until it has exhausted a huge (dynamically increasing)
 list of keywords, so feel free to stop it using control+C at any point. The script
