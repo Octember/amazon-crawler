@@ -1,9 +1,11 @@
-import requests
+import requests   # HTTP requests
 from collections import deque
-import pdb    # debugger
-import pickle # For saving / dumping data
-import signal # For catching control+c
-import sys
+import pdb        # debugger
+import pickle     # For saving / dumping data
+import signal     # For catching control+c
+import sys        # handling control+c
+import argparse   # Parsing arguments
+import os.path
 
 # This URL will surely not work forever, but at the time of writing it works
 AUTOCOMPLETE_URL = "https://completion.amazon.com/search/complete?method=completion&mkt=1&r=QHW0T16FVMD8GWM2WWM4&s=161-1591289-5903765&c=AWJECJG5N87M8&p=Detail&l=en_US&sv=desktop&client=amazon-search-ui&search-alias=aps&qs=&cf=1&fb=1&sc=1&q={}"
@@ -58,29 +60,32 @@ def get_suggestions(keyword):
 
 
 def save_crawl_data(keyword_suggestions, tagged_categories):
+    file_path = "./suggestion_data.p"
+
     saved_data = {
         'keyword_sugggestions': keyword_suggestions,
         'tagged_categories': tagged_categories
     }
 
-    print("Saving {} suggestions".format(len(keyword_suggestions)))
-    pickle.dump( saved_data, open( "./suggestion_data.p", "wb" ) )
+    print("Saving {} suggestions to {}".format(len(keyword_suggestions), file_path))
+    pickle.dump( saved_data, open( file_path, "wb" ) )
 
 
-def crawl_amazon():
+def crawl_amazon(limit):
 
     keyword_suggestions = {}
     tagged_categories   = {}
 
     # Handler to catch control+C and save our progress anyway
     def signal_handler(signal, frame):
-        print('You pressed Ctrl+C!')
+        print('Saving your data and quitting')
         save_crawl_data(keyword_suggestions, tagged_categories)
         sys.exit(0)
 
     signal.signal(signal.SIGINT, signal_handler)
 
-    print('Welcome -- Press Ctrl+C whenever')
+    print('Welcome -- About to crawl {} keywords from amazon suggestions'.format(limit))
+    print('Press Ctrl+C whenever, your data will be saved\n')
 
     words_to_use = set()
     for line in open('./simple_words.txt', 'r'):
@@ -88,7 +93,7 @@ def crawl_amazon():
 
     keyword_queue = deque(words_to_use)
 
-    while len(keyword_queue) != 0:
+    while len(keyword_queue) != 0 and len(keyword_suggestions) < limit:
 
         keyword = keyword_queue.popleft()
 
@@ -109,5 +114,22 @@ def crawl_amazon():
 
     save_crawl_data(keyword_suggestions, tagged_categories)
 
+
+def query():
+
+
+
 if __name__ == "__main__":
-    crawl_amazon()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("action", help="'crawl' to crawl amazon, 'query' to enter interactive CLI based on previous crawl")
+    parser.add_argument("--limit", type=int, help="Limit total number of suggestions to query. Defaults to 100", default=100)
+    args = parser.parse_args()
+
+    if args.action == 'crawl':
+        limit = args.limit
+        crawl_amazon(limit)
+    elif args.action == 'query':
+        query_data()
+    else:
+        raise Exception("Invalid action, use 'crawl' or 'query'")

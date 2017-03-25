@@ -18,7 +18,7 @@ There are two steps to using the crawler:
 1. Run the script to save a dump of from amazon.com suggestion data
 
 ```
-python crawler.py
+python crawler.py crawl
 ```
 
 The script will continue to run until it has exhausted a huge (dynamically increasing)
@@ -26,7 +26,7 @@ list of keywords, so feel free to stop it using control+C at any point. The scri
 will save the crawled data at that point. The data will be saved to `suggestion_data.p`
 
 2. Reading the data
-
+python crawler.py query
 
 
 ## Planning
