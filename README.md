@@ -6,7 +6,7 @@ Write a simple web crawler that grabs search suggestion data from the amazon.com
 ## Installation
 
 ```
-# Install python v > 3.0
+# Install python v > 3.0 https://www.python.org/downloads/release/python-361/
 
 pip install requests
 ```
@@ -26,8 +26,7 @@ list of keywords, so feel free to stop it using control+C at any point. The scri
 will save the crawled data at that point. The data will be saved to `suggestion_data.p`
 
 2. Reading the data
-python crawler.py query
-
+python3 crawler.py query
 
 ## Planning
 
