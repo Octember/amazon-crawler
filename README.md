@@ -28,7 +28,9 @@ list of keywords, so feel free to stop it using control+C at any point. The scri
 will save the crawled data at that point. The data will be saved to `suggestion_data.p`
 
 2. Reading the data
+```
 python3 crawler.py query
+```
 
 ## Planning
 
