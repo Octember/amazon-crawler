@@ -47,7 +47,7 @@ def parse_response(response):
     assert(len(suggestions) == len(category_data))
 
     for i, suggestion in enumerate(suggestions):
-        suggestions_with_categories[suggestion] = category_data[i]
+        suggestions_with_categories[suggestion.lower()] = category_data[i]
 
     return suggestions_with_categories
 
@@ -71,6 +71,16 @@ def save_crawl_data(keyword_suggestions, tagged_categories):
     pickle.dump( saved_data, open( DATA_FILE_PATH, "wb" ) )
 
 
+def load_crawl_data():
+
+    if not os.path.isfile(DATA_FILE_PATH):
+        raise ValueError("Data file not ready; run `python crawler.py crawl` before querying")
+
+    saved_data = pickle.load(open( DATA_FILE_PATH, "rb" ) )
+
+    return saved_data['keyword_sugggestions'], saved_data['tagged_categories']
+
+
 def crawl_amazon(limit):
 
     keyword_suggestions = {}
@@ -89,7 +99,7 @@ def crawl_amazon(limit):
 
     words_to_use = set()
     for line in open('./simple_words.txt', 'r'):
-        words_to_use.add(line.strip())
+        words_to_use.add(line.strip().lower())
 
     keyword_queue = deque(words_to_use)
 
@@ -116,10 +126,41 @@ def crawl_amazon(limit):
 
 
 def query_data():
-    if not os.path.isfile(DATA_FILE_PATH):
-        raise ValueError("Data file not ready; run `python crawler.py crawl` before querying")
+    keyword_sugggestions, tagged_categories = load_crawl_data()
 
+    print("Possible commands:")
+    print("list keywords\t\t:  list all recorded keywords")
+    print("list categories\t\t:  list all recorded categories")
+    print("keyword [keyword]\t:  list suggestions for the given keyword")
+    print("category [category]\t:  list suggestions in the given category")
+    print("exit\t\t\t:  quit - can also use control+c")
+    print()
 
+    while 1:
+        user_input = input().strip().lower().split()
+
+        if len(user_input) == 0:
+            continue
+
+        if user_input[0] == 'exit':
+            exit(0)
+        elif user_input[0] == 'list' and user_input[1] == 'keywords':
+            output = ', '.join(keyword_sugggestions.keys())
+            print("Keywords: {}".format(output))
+        elif user_input[0] == 'list' and user_input[1] == 'categories':
+            pass
+            #TODO
+        elif user_input[0] == 'keyword' and len(user_input) > 1:
+            keyword = user_input[1]
+            output = ', '.join(keyword_sugggestions[keyword])
+            print("Suggestions: {}".format(output))
+        elif user_input[0] == 'keyword' and len(user_input) > 1:
+            pass
+            #TODO
+        else:
+            print("invalid command")
+
+        print()
 
 
 if __name__ == "__main__":
