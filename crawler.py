@@ -7,6 +7,7 @@ import sys        # handling control+c
 import argparse   # Parsing arguments
 import os.path
 
+DATA_FILE_PATH = "./suggestion_data.p"
 # This URL will surely not work forever, but at the time of writing it works
 AUTOCOMPLETE_URL = "https://completion.amazon.com/search/complete?method=completion&mkt=1&r=QHW0T16FVMD8GWM2WWM4&s=161-1591289-5903765&c=AWJECJG5N87M8&p=Detail&l=en_US&sv=desktop&client=amazon-search-ui&search-alias=aps&qs=&cf=1&fb=1&sc=1&q={}"
 
@@ -60,15 +61,14 @@ def get_suggestions(keyword):
 
 
 def save_crawl_data(keyword_suggestions, tagged_categories):
-    file_path = "./suggestion_data.p"
 
     saved_data = {
         'keyword_sugggestions': keyword_suggestions,
         'tagged_categories': tagged_categories
     }
 
-    print("Saving {} suggestions to {}".format(len(keyword_suggestions), file_path))
-    pickle.dump( saved_data, open( file_path, "wb" ) )
+    print("Saving {} suggestions to {}".format(len(keyword_suggestions), DATA_FILE_PATH))
+    pickle.dump( saved_data, open( DATA_FILE_PATH, "wb" ) )
 
 
 def crawl_amazon(limit):
@@ -115,7 +115,10 @@ def crawl_amazon(limit):
     save_crawl_data(keyword_suggestions, tagged_categories)
 
 
-def query():
+def query_data():
+    if not os.path.isfile(DATA_FILE_PATH):
+        raise ValueError("Data file not ready; run `python crawler.py crawl` before querying")
+
 
 
 
@@ -132,4 +135,4 @@ if __name__ == "__main__":
     elif args.action == 'query':
         query_data()
     else:
-        raise Exception("Invalid action, use 'crawl' or 'query'")
+        raise ValueError("Invalid action, use 'crawl' or 'query'")
