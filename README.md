@@ -14,7 +14,17 @@ python crawler.py
 
 ```
 
-### First steps: Get a crawler up and running that can type in a browser
+### Generating list of keywords to search on
+
+* Use simple dictionary
+* Supplement list of keywords with returned results as known things to search for
+** Worth noting that this strategy quickly explodes the number of searches.
+This is ideal for a comprehensive crawler, but very slow for a quick script
+* Use random letters
 
 
+### Data storage scheme
 
+Map of keyword => list of suggestions
+
+Separate map of category -> suggestions in that category

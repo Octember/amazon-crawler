@@ -1,8 +1,8 @@
-from html.parser import HTMLParser
+# from html.parser import HTMLParser
 import requests
-
+from collections import deque
 import pdb
-
+import pickle
 
 # This URL will surely not work forever, but at the time of writing it works
 AUTOCOMPLETE_URL = "https://completion.amazon.com/search/complete?method=completion&mkt=1&r=QHW0T16FVMD8GWM2WWM4&s=161-1591289-5903765&c=AWJECJG5N87M8&p=Detail&l=en_US&sv=desktop&client=amazon-search-ui&search-alias=aps&qs=&cf=1&fb=1&sc=1&q={}"
@@ -56,4 +56,43 @@ def get_suggestions(keyword):
     return parse_response(response)
 
 
-print(get_suggestions('hello'))
+
+
+if __name__ == "__main__":
+    keyword_suggestions = {}
+    tagged_categories   = {}
+
+    words_to_use = set()
+    for line in open('./simple_words_smaller.txt', 'r'):
+        words_to_use.add(line.strip())
+
+    keyword_queue = deque(words_to_use)
+
+    while len(keyword_queue) != 0:
+
+        keyword = keyword_queue.popleft()
+
+        suggestions_and_categories = get_suggestions(keyword)
+
+        suggestion_list = set(suggestions_and_categories.keys())
+
+        keyword_suggestions[keyword] = suggestion_list
+
+        # Now enqueue new potential keywords
+        for suggestion in suggestion_list:
+            if suggestion not in words_to_use:
+                words_to_use.add(suggestion)
+                keyword_queue.append(suggestion)
+                print("Enqueued '{}'".format(suggestion))
+
+        print("{} left\t\t{}:\t{} suggestions".format(len(keyword_queue), keyword, len(suggestion_list)))
+
+        # pdb.set_trace()
+
+    saved_data = {
+        'keyword_sugggestions': keyword_suggestions,
+        'tagged_categories': tagged_categories
+    }
+
+    pickle.dump( saved_data, open( "suggestion_data.p", "wb" ) )
+
